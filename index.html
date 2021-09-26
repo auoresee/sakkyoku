@@ -1,85 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>   
-        <script src="javascript/Audiolet.js"></script>
-        <script src="javascript/instruments.js"></script>
-        <script src="javascript/JSequencer.js"></script>
-        <script src="javascript/ui.js"></script> 
-        <script type="application/javascript">
-        function start() {
-            //console.time('foo');
-            initialize();
-            var sequencer = new Sequencer();
 
-            document.getElementById("grid-container").onscroll = function() {
-                document.getElementById("piano-container").scrollTop = this.scrollTop;
-                document.getElementById("measure-counter-container").scrollLeft = this.scrollLeft;
-            };
-            //console.timeEnd('foo'); 
-        }
-        </script>
-        <meta charset="utf-8" />
-        <meta name="description" content="PianoRoll.js is a Music Sequencer that runs in your browser written completely with HTML5 canvas, HTML5 audio and JavaScript." >
-        <title>PianoRoll.js</title>
-        <link type="text/css" rel="stylesheet" href="style/main.css">
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script src="javascript/IndexMain.js"></script>
+        <meta charset="utf-8">
+        <meta http-equiv="Cache-Control" content="no-cache">
+        <link type="text/css" rel="stylesheet" href="style.css">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+        <title>作曲.jp</title>
     </head>
-    <body onload="start()">
+    <body>
     
-    <div id="menu">
-        <div id="about">
-            <a href="https://github.com/bobenheimer/PianoRoll.js" target = "_blank">PianoRoll.js</a> is a Music Sequencer that runs in your browser written completely with HTML5 canvas, HTML5 audio and JavaScript.  The audio portion is built on top of 
-            <a href="https://github.com/oampo/Audiolet" target = "_blank">Audiolet</a>. Documentation <a href="http://www.oliphaunts.com/projects.html" target = "_blank">here.</a>
-            <!-- PianoRoll.js functions as a basic multi-track music Sequencer and even saves songs via local browser storage. -->
-        </div> 
-        <div id="options">
-            <div id="note-lengths">   
-                <div id="whole"><img src="images/whole-note.jpg" alt="whole note"/></div>
-                <div id="half"><img src="images/half-note.jpg" alt="half note"/></div>
-                <div id="quarter"><img src="images/quarter-note.jpg" alt="quarter note"/></div>
-                <div id="eight"><img src="images/eigth-note.jpg" alt="eighth note"/></div>
-                <div id="sixteenth"><img src="images/sixteenth-note.jpg" alt="sixteenth note"/></div>
-            </div>
+    <h1>作曲.jp</h1>
     
-            <div id="song-controls">
-                <span>Tempo: </span><input id = "tempo" type="number" min="30" max="400" step="1" value="100">
-                <button id="play-button"><img src="images/play.png" alt="play" /></button>
-            </div>
-            <div id="tracks-container">
-                Tracks
-                <select name="tracks" id="tracks">
+    <h3><a href="sequencer.html">曲を作成</a></h3>
     
-                </select>
-            </div>
-            <div>
-                <button id="clear">Clear Track</button>
-            </div>       
-        </div>
-
-    </div>
-
-    <div id="beat">
-
-    </div>
-    <div id="measure-counter-container">
-        <div id="measure-counter">
-            <canvas id="measure-counter-canvas" width="3200" height="25"></canvas>
-        </div>    
-    </div>
-
+    <div id="song_list">
+    	<h2>最近アップロードされた曲</h2>
+        <div id="top_song_list">
         
-    <div id="main">
-        <div id="piano-container">
-            <div id="piano">
-                 <canvas id="white-keys"  width="150"></canvas>                
-                 <canvas id="black-keys"  width="150"></canvas>
-            </div>
         </div>
-        <div id="grid-container">
-            <div id="grid">
-                <canvas id="canvas-notes" width="3200"></canvas>
-                <canvas id="canvas-grid" width="3200"></canvas>
-            </div>
-        </div>    
+
+		<h2>自分の曲</h2>
+        <div id="my_song_list">
+        
+        </div>
     </div>
 
     </body>

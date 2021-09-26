@@ -1,135 +1,154 @@
-var instrumentList = {       
-        piano: {
-            playFunction: function(audiolet, frequency, duration, volume) {
-                AudioletGroup.apply(this, [audiolet, 0, 1]);
-                // Basic wave
-                var attack = 0.01;
-                var release = 0.5 * duration;
-                this.sine = new Sine(audiolet, frequency);
+var instrumentArray = [      
+    {
+        name: "Piano",
+        displayName: "ピアノ",
+        play: function(track, noteNumber, duration, volume) {
+            let frequency = calculateFrequency(noteNumber);
+            let pitch = frequency / 440.0;
+            soundManager.playSoundPitch("piano_A4", false, pitch, duration, track.gainNode);
+        }
+    },
                 
-                // Gain envelope
-                this.gain = new Gain(audiolet, 4);
-                this.env = new PercussiveEnvelope(audiolet, 1, 0.01, release,
-                    function() {
-                        audiolet.scheduler.addRelative(0, this.remove.bind(this));
-                    }.bind(this)
-                );
-                this.envMulAdd = new MulAdd(audiolet, 0.2 * volume, 0);
-
-                // Main signal path
-                this.sine.connect(this.gain);
-                this.gain.connect(this.outputs[0]);
-
-                // Envelope
-                this.env.connect(this.envMulAdd);
-                this.envMulAdd.connect(this.gain, 0, 1);
-            }
-        },
-                   
-        RockOrgan: {
-            playFunction: function(audiolet, frequency, duration, volume, bpm) {
-                AudioletGroup.apply(this, [audiolet, 0, 1]);
-                var fullDuration = duration * 60 / bpm || duration / 2;            
-                console.log(bpm);
-                this.triangle1 = new Triangle(audiolet, frequency);
-                this.triangle2 = new Square(audiolet, frequency * 2);
-                this.triangle3 = new Sine(audiolet, frequency / 2);
-                this.gain1 = new Gain(audiolet, 0.9);
-                this.gain2 = new Gain(audiolet, 0.2);
-                this.gain3 = new Gain(audiolet, 0.5);
-                this.modulatorMulAdd = new Tanh(this.audiolet);               
-                this.finalGain = new Gain(audiolet, 0.1);
-                this.envelope = new PercussiveEnvelope(audiolet, 1, fullDuration * 0.1, fullDuration * 0.9,
-                    function() {
-                        audiolet.scheduler.addRelative(0, this.remove.bind(this));
-                    }.bind(this)
-                );
-                
-                this.filter = new LowPassFilter(this.audiolet, 3000);
-                this.triangle1.connect(this.gain1);  
-                this.triangle2.connect(this.gain2);
-                this.triangle3.connect(this.gain3); 
-                
-                this.envelope.connect(this.finalGain);
-                this.gain1.connect(this.finalGain);
-                this.gain2.connect(this.finalGain);
-                this.gain3.connect(this.finalGain);
-                this.finalGain.connect(this.filter);
-                this.filter.connect(this.outputs[0]);
-            }
-        },    
-        
-        harpsichord: { 
-            playFunction: function(audiolet, frequency, duration, volume) {
-                AudioletGroup.apply(this, [audiolet, 0, 1]);
-                
-                var release = 0.5 * duration;
-                // Basic wave
-                this.sine = new Saw(audiolet, frequency);
-                
-                this.filter = new DampedCombFilter(audiolet, 0.06, 0.02, 0.04, 0.2);              
-                
-                // Gain envelope
-                this.gain = new Gain(audiolet, 0.07);
-                this.env = new PercussiveEnvelope(audiolet, 0.01, 0.05, release,
-                  function() {
-                    this.audiolet.scheduler.addRelative(0, this.remove.bind(this));
-                  }.bind(this)
-                );
-                
-                this.envMulAdd = new MulAdd(audiolet, 0.1 * volume, 0);
-
-                // Main signal path
-                //this.sine.connect(this.gain);
-                this.sine.connect(this.filter);
-                this.filter.connect(this.gain);    
-                this.gain.connect(this.outputs[0]);
-
-                // Envelope
-                this.env.connect(this.envMulAdd);
-                this.envMulAdd.connect(this.filter);
-            }
-                        
-        },
+    {
+        name: "RockOrgan",
+        displayName: "オルガン",
+        play: function(track, noteNumber, duration, volume) {
+            let frequency = calculateFrequency(noteNumber);
+            let pitch = frequency / 440.0;
+            soundManager.playSoundPitch("RockOrgan_A4", false, pitch, duration, track.gainNode);
+        }
+    },
     
-        percussion: {
-            playFunction: function(audiolet, frequency, duration, volume) {
-                AudioletGroup.apply(this, [audiolet, 0, 1]);
-                // Basic wave
-                this.white = new WhiteNoise(audiolet);        
-                this.filter = new BandPassFilter(audiolet, frequency);
-                
-                this.sine = new Sine(audiolet, frequency);
-                this.clip = new SoftClip(audiolet);
-                
-                this.gain = new Gain(audiolet);
-                
-                this.env = new PercussiveEnvelope(audiolet, 0.01, 0.01, 0.1,
-                  function() {
-                    this.audiolet.scheduler.addRelative(0, this.remove.bind(this));
-                  }.bind(this)
-                );
-                this.envMulAdd = new MulAdd(audiolet, 0.5 * volume, 0);
-                
-                this.sine_filteredwhite_MulAdd = new MulAdd(audiolet, 0.5, 0);
-                   
-                //Main signal path
-                this.white.connect(this.filter);
-                this.sine.connect(this.sine_filteredwhite_MulAdd);
-                this.sine_filteredwhite_MulAdd.connect(this.filter);
-                   
-                // Envelope    
-                this.filter.connect(this.gain);
-                
-                this.env.connect(this.envMulAdd);
-                this.envMulAdd.connect(this.gain, 0, 1);
-                this.gain.connect(this.outputs[0]);
-            }            
-        },
-};
+    //played 2 octave lower than note position
+    {
+        name: "FingerBass",
+        displayName: "ベース",
+        play: function(track, noteNumber, duration, volume) {
+            let frequency = calculateFrequency(noteNumber);
+            let pitch = frequency / 220.0;
+            soundManager.playSoundPitch("FingerBass_A2", false, pitch, duration, track.gainNode);
+        }
+    },
 
-for (var key in instrumentList) {
-    extend(instrumentList[key].playFunction, AudioletGroup);
+    {
+        name: "Percussion",
+        displayName: "ドラム",
+        play: function(track, noteNumber, duration, volume) {
+            let frequency = calculateFrequency(noteNumber);
+            let pitch = 1;
+            if(frequency >= 1000){
+                soundManager.playSoundPitch("CrashCymbal", false, pitch, duration, track.gainNode);
+            }else if(frequency >= 700){
+                soundManager.playSoundPitch("HihatOpen", false, pitch, duration, track.gainNode);
+            }else if(frequency >= 450){
+                soundManager.playSoundPitch("HihatClosed", false, pitch, duration, track.gainNode);
+            }else if(frequency >= 250){
+                soundManager.playSoundPitch("Snare", false, pitch, duration, track.gainNode);
+            }else{
+                soundManager.playSoundPitch("BassDrum", false, pitch, duration, track.gainNode);
+            }
+        }            
+    },
+
+    {
+        name: "Strings",
+        displayName: "ストリングス",
+        play: function(track, noteNumber, duration, volume) {
+            let frequency = calculateFrequency(noteNumber);
+            let pitch = frequency / 440.0;
+            soundManager.playSoundPitch("Strings_A4", false, pitch, duration, track.gainNode);
+        }
+    },
+
+    {
+        name: "SopranoSax",
+        displayName: "サックス",
+        play: function(track, noteNumber, duration, volume) {
+            let frequency = calculateFrequency(noteNumber);
+            let pitch = frequency / 440.0;
+            soundManager.playSoundPitch("SopranoSax_A4", false, pitch, duration, track.gainNode);
+        }
+    },
+
+    {
+        name: "ODGuitar",
+        displayName: "エレキギター",
+        play: function(track, noteNumber, duration, volume) {
+            let frequency = calculateFrequency(noteNumber);
+            let pitch = frequency / 440.0;
+            soundManager.playSoundPitch("ODGuitar_A4", false, pitch, duration, track.gainNode);
+        }
+    },
+
+    {
+        name: "EPiano2",
+        displayName: "Eピアノ",
+        play: function(track, noteNumber, duration, volume) {
+            let frequency = calculateFrequency(noteNumber);
+            let pitch = frequency / 440.0;
+            soundManager.playSoundPitch("EPiano2_A4", false, pitch, duration, track.gainNode);
+        }
+    },
+
+    {
+        name: "SquareLead",
+        displayName: "シンセリード",
+        play: function(track, noteNumber, duration, volume) {
+            let frequency = calculateFrequency(noteNumber);
+            let pitch = frequency / 440.0;
+            soundManager.playSoundPitch("SquareLead_A4", false, pitch, duration, track.gainNode);
+        }
+    },
+
+    {
+        name: "SynthBell",
+        displayName: "ベル",
+        play: function(track, noteNumber, duration, volume) {
+            let frequency = calculateFrequency(noteNumber);
+            let pitch = frequency / 440.0;
+            soundManager.playSoundPitch("SynthBell_A6", false, pitch, duration, track.gainNode);
+        }
+    },
+];
+
+instrumentList = [];
+instrumentNameToID = [];
+for (let i = 0; i < instrumentArray.length; i++){
+    let instr = instrumentArray[i];
+    instrumentList[instr.name] = instr;
+    instrumentNameToID[instr.name] = i;
+}
+
+function calculateFrequency(noteNumber){
+    const c4 = 60;
+    let c4rel = noteNumber - c4;
+    let octave = Math.floor(c4rel / 12.0);
+    let octavemul = (1 << (octave + 10)) / 1024.0;
+    let key = (c4rel + 120) % 12;    //floor remainder
+    let freq = [261.63, 277.18, 293.66, 311.13, 329.63, 349.23, 369.99, 392.00, 415.30, 440.00, 466.16, 493.88];
+    
+    let result = freq[key] * octavemul;
+    /*if(sequencer != null && sequencer.song.songID == 20) {
+        $("#status-text").append(""+result+"<br>");
+    }*/
+    return result;
+}
+
+function loadSoundFiles(){
+    soundManager.loadSound("piano_A4", "sound/piano_A4.wav");
+    soundManager.loadSound("RockOrgan_A4", "sound/RockOrgan_A4.wav");
+    soundManager.loadSound("SopranoSax_A4", "sound/SopranoSax_A4.wav");
+    soundManager.loadSound("Strings_A4", "sound/Strings_A4.wav");
+    soundManager.loadSound("FingerBass_A2", "sound/FingerBass_A2.wav");
+    soundManager.loadSound("CrashCymbal", "sound/CrashCymbal.wav");
+    soundManager.loadSound("HihatOpen", "sound/HihatOpen.wav");
+    soundManager.loadSound("HihatClosed", "sound/HihatClosed.wav");
+    soundManager.loadSound("Snare", "sound/Snare.wav");
+    soundManager.loadSound("BassDrum", "sound/BassDrum.wav");
+    soundManager.loadSound("ODGuitar_A4", "sound/ODGuitar_A4.wav");
+    soundManager.loadSound("EPiano2_A4", "sound/EPiano2_A4.ogg");
+    soundManager.loadSound("SquareLead_A4", "sound/SquareLead_A4.wav");
+    soundManager.loadSound("SynthBell_A6", "sound/SynthBell_A6.ogg");
 }
 
 
