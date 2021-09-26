@@ -9,6 +9,18 @@ function getSongDir(){
 	return "../songs/";
 }
 
+function getSongFileList() {
+	chdir("../songs/");
+	
+	$filewildcard = "*.song";
+	
+	$files = glob($filewildcard);
+	
+	chdir("../php/");
+	
+	return $files;
+}
+
 //loads song data from a song file as an object
 function loadSong($song_id){
 	$song_file_name = getSongFileName($song_id);
@@ -33,6 +45,7 @@ function createSongTable(){
 	$qry->execute();
 }
 
+//曲データがデータベースにあるかチェックする
 function checkSongExistsInDB($song_id){
 	$pdo = getPDO();
 	
@@ -50,22 +63,26 @@ function checkSongExistsInDB($song_id){
 	return false;
 }
 
+//曲IDのリストをデータベースから取得
 function retrieveSongIDListFromDB(){
+	$pdo = getPDO();
+
 	$qry = $pdo->prepare("SELECT song_id FROM song_table");
-	$rows = $qry->execute();
+	$qry->execute();
 	$result = array();
 
-	$cur = $rows->fetchColumn();
+	$cur = $qry->fetchColumn();
 
-	while($cur != false){
+	while($cur !== false){
 		$result[] = intval($cur);
-		$cur = $rows->fetchColumn();
+		$cur = $qry->fetchColumn();
 	}
 
 	return $result;
 }
 
-function convertSQLRowToObject($row){
+//SQLで取得した行を曲情報オブジェクトに変換
+function convertSQLRowToSongInfoObject($row){
 	return new SongInfo($row['name'], $row['song_id'], $row['user_id'], $row['is_on_release'],
 		datetime2timestamp($row['created_date']) * 1000, datetime2timestamp($row['last_updated_date']) * 1000,
 		datetime2timestamp($row['released_date']) * 1000);
@@ -116,6 +133,14 @@ function updateSongInDB($song){
 	
 	$qry->execute($prm);
 	
+}
+
+function deleteSongFromDB($song_id) {
+	$pdo = getPDO();
+
+	$qry = $pdo->prepare("DELETE FROM song_table WHERE song_id = :song_id");
+	$qry->bindValue(':song_id', (int) $song_id, PDO::PARAM_INT);	//use explicit cast
+	$qry->execute();
 }
 
 ?>

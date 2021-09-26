@@ -117,7 +117,7 @@ function getSongList($target, $release, $sort, $num, $offset){
 	$result = array();
 	
 	foreach($arr as $row){
-		$obj = convertSQLRowToObject($row);
+		$obj = convertSQLRowToSongInfoObject($row);
 		$result[] = $obj;
 	}
 	

@@ -1,12 +1,14 @@
 <?php
 
+require_once "sqlpassword.php";
+
 $pdo = null;
 	
 //PDOを初期化(SQLに接続)
 function initPDO($db_name) {
     $SQL_IP = "localhost";
     $SQL_USER = "noverdi";
-    $SQL_PASSWORD = "v7N2k8pG2";
+    $SQL_PASSWORD = $GLOBALS['SQL_PASSWORD'];
     $GLOBALS['pdo'] = new PDO('mysql:host=' . $SQL_IP . ';dbname=' . $db_name . ';charset=utf8',$SQL_USER,$SQL_PASSWORD);
     $GLOBALS['pdo']->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 }
@@ -20,12 +22,12 @@ function checkSongTableExistence(){
     $pdo = getPDO();
 
     $qry = $pdo->prepare("SHOW TABLES LIKE 'song_table'");
-    $rows = $qry->execute();
+    $qry->execute();
     $result = array();
 
-    $cur = $rows->fetchColumn();
+    $cur = $qry->fetchColumn();
 
-    if($cur == false) return false;
+    if($cur === false) return false;
 
     return true;
 }

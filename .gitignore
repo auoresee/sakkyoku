@@ -1,4 +1,6 @@
 .idea/
 songs/*.song
+userdata/*.user
 SEELOG.bat
 *.url
+php/sqlpassword.php
